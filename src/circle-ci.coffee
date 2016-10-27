@@ -30,11 +30,10 @@
 #   dylanlingelbach
 
 url = require('url')
-util = require('util')
 querystring = require('querystring')
 
 circleciHost = `process.env.HUBOT_CIRCLECI_HOST? process.env.HUBOT_CIRCLECI_HOST : "circleci.com"`
-endpoint = "https://#{circleciHost}/api/v1"
+endpoint = "https://#{circleciHost}/api/v1.1"
 
 toProject = (project) ->
   if project.indexOf("/") == -1 && process.env.HUBOT_GITHUB_ORG?
@@ -218,7 +217,7 @@ module.exports = (robot) ->
       clearProjectCache(msg, endpoint, project)
 
   robot.router.post "/hubot/circle", (req, res) ->
-    console.log "Received circle webhook callback"
+    robot.logger.info "Received circle webhook callback"
 
     query = querystring.parse url.parse(req.url).query
     res.end JSON.stringify {
@@ -229,12 +228,12 @@ module.exports = (robot) ->
     user.room = query.room if query.room
     user.type = query.type if query.type
 
-    console.log "Received CircleCI payload: #{util.inspect(req.body.payload)}"
+    payload = req.body.payload
+    robot.logger.info "Incoming CircleCI webhook", JSON.stringify(payload)
 
     try
-      robot.send user, formatBuildStatus(req.body.payload)
-
-      console.log "Sent CircleCI build status message"
+      robot.send user, formatBuildStatus(payload)
+      robot.logger.info "Sent CircleCI build status message"
 
     catch error
-      console.log "circle hook error: #{error}. Payload: #{util.inspect(req.body.payload)}"
+      robot.logger.error "CircleCI webhook error", error, JSON.stringify(payload)

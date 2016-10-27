@@ -18,10 +18,10 @@
     "url": "https://github.com/hubot-scripts/hubot-circleci/issues"
   },
   "dependencies": {
-    "coffee-script": "~1.6"
   },
   "devDependencies": {
     "mocha": "*",
+    "coffee-script": ">=1.6",
     "chai": "*",
     "sinon-chai": "*",
     "sinon": "*"
